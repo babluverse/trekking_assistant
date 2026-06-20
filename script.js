@@ -177,8 +177,11 @@ function renderList() {
 // ── Toggle Item ──
 function toggleItem(index) {
   currentList[index].checked = !currentList[index].checked;
-  renderList();
-  updateProgress();
+  animateItem(index);
+  setTimeout(() => {
+    renderList();
+    updateProgress();
+  }, 150);
 }
 
 // ── Update Progress ──
@@ -190,6 +193,16 @@ function updateProgress() {
   progressBar.style.width = `${percent}%`;
   progressLabel.textContent = `${percent}%`;
   progressSub.textContent = `${checked} of ${total} items packed`;
+
+  const completedMsg = document.getElementById('completed-msg');
+
+  if (percent === 100) {
+    progressBar.classList.add('complete');
+    completedMsg.classList.add('visible');
+  } else {
+    progressBar.classList.remove('complete');
+    completedMsg.classList.remove('visible');
+  }
 }
 
 // ── Event Listeners ──
@@ -203,3 +216,15 @@ resetBtn.addEventListener('click', () => {
   destinationSelect.value = '';
   daysInput.value = '';
 });
+
+// ── Smooth Item Animation ──
+function animateItem(index) {
+  const items = checklistEl.querySelectorAll('.checklist-item');
+  const item = items[index];
+  if (!item) return;
+
+  item.style.transform = 'scale(0.97)';
+  setTimeout(() => {
+    item.style.transform = 'scale(1)';
+  }, 150);
+}
