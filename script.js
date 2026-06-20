@@ -114,6 +114,34 @@ const packingData = {
 // ── State ──
 let currentList = [];
 
+// ── Save to LocalStorage ──
+function saveToStorage() {
+  localStorage.setItem('trek_list', JSON.stringify(currentList));
+  localStorage.setItem('trek_destination', destinationSelect.value);
+  localStorage.setItem('trek_days', daysInput.value);
+}
+
+// ── Load from LocalStorage ──
+function loadFromStorage() {
+  const savedList = localStorage.getItem('trek_list');
+  const savedDestination = localStorage.getItem('trek_destination');
+  const savedDays = localStorage.getItem('trek_days');
+
+  if (savedList && savedDestination && savedDays) {
+    currentList = JSON.parse(savedList);
+    destinationSelect.value = savedDestination;
+    daysInput.value = savedDays;
+
+    const data = packingData[savedDestination];
+    checklistTitle.textContent = `${data.label} — ${savedDays} Day${savedDays > 1 ? 's' : ''}`;
+
+    progressSection.removeAttribute('hidden');
+    checklistSection.removeAttribute('hidden');
+    renderList();
+    updateProgress();
+  }
+}
+
 // ── Generate List ──
 function generateList() {
   const destination = destinationSelect.value;
@@ -132,7 +160,6 @@ function generateList() {
   const data = packingData[destination];
   const extras = [];
 
-  // add extra items based on days
   const extraCycles = Math.min(days, 5);
   for (let i = 0; i < extraCycles; i++) {
     data.extraPerDay.forEach(item => {
@@ -151,6 +178,7 @@ function generateList() {
   progressSection.removeAttribute('hidden');
   checklistSection.removeAttribute('hidden');
   updateProgress();
+  saveToStorage();
 }
 
 // ── Render List ──
@@ -174,11 +202,24 @@ function renderList() {
   });
 }
 
+// ── Animate Item ──
+function animateItem(index) {
+  const items = checklistEl.querySelectorAll('.checklist-item');
+  const item = items[index];
+  if (!item) return;
+
+  item.style.transform = 'scale(0.97)';
+  setTimeout(() => {
+    item.style.transform = 'scale(1)';
+  }, 150);
+}
+
 // ── Toggle Item ──
 function toggleItem(index) {
   currentList[index].checked = !currentList[index].checked;
   animateItem(index);
   setTimeout(() => {
+    saveToStorage();
     renderList();
     updateProgress();
   }, 150);
@@ -208,6 +249,10 @@ function updateProgress() {
 // ── Event Listeners ──
 generateBtn.addEventListener('click', generateList);
 
+daysInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') generateList();
+});
+
 resetBtn.addEventListener('click', () => {
   currentList = [];
   checklistEl.innerHTML = '';
@@ -215,16 +260,8 @@ resetBtn.addEventListener('click', () => {
   checklistSection.setAttribute('hidden', '');
   destinationSelect.value = '';
   daysInput.value = '';
+  localStorage.clear();
 });
 
-// ── Smooth Item Animation ──
-function animateItem(index) {
-  const items = checklistEl.querySelectorAll('.checklist-item');
-  const item = items[index];
-  if (!item) return;
-
-  item.style.transform = 'scale(0.97)';
-  setTimeout(() => {
-    item.style.transform = 'scale(1)';
-  }, 150);
-}
+// ── Init ──
+loadFromStorage();
