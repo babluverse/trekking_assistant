@@ -350,3 +350,29 @@ body {
     padding: 11px 12px;
   }
 }
+
+/* ── Item Animation ── */
+.checklist-item {
+  transform: scale(1);
+  transition: var(--transition), transform 0.15s ease;
+}
+
+/* ── Progress Complete State ── */
+.progress-bar-fill.complete {
+  background: linear-gradient(90deg, var(--green-dark), #56ab2f);
+}
+
+/* ── Completed Message ── */
+.completed-msg {
+  text-align: center;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--green-dark);
+  margin-top: 10px;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.completed-msg.visible {
+  opacity: 1;
+}
